@@ -1,0 +1,46 @@
+<div class="contenedor">
+  <h1>Calculadora</h1>
+
+  <div class="formulario">
+    <label>
+      Número 1
+      <input type="number" [(ngModel)]="numero1" placeholder="">
+    </label>
+
+    <label>
+      Número 2
+      <input type="number" [(ngModel)]="numero2" placeholder="">
+    </label>
+
+    <label>
+      Operación
+      <select [(ngModel)]="operador">
+        <option value="+">(+)</option>
+        <option value="-">(-)</option>
+        <option value="*">(×)</option>
+        <option value="/">(÷)</option>
+      </select>
+    </label>
+
+    <button (click)="calcular()">Calcular</button>
+
+    <label>
+      Resultado
+      <input type="text" [value]="resultado" disabled placeholder="">
+    </label>
+  </div>
+
+  <div class="historial">
+    <div class="historial-titulo">
+      <h2>Historial</h2>
+    </div>
+
+    <p *ngIf="historial.length === 0"></p>
+
+    <ul *ngIf="historial.length > 0">
+      <li *ngFor="let op of historial">
+        {{ op.numero1 }} {{ simboloOperador(op.operador) }} {{ op.numero2 }} = {{ op.resultado }}
+      </li>
+    </ul>
+  </div>
+</div>
