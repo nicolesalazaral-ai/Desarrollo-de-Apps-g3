@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Mercado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .contenedor {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .fila-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .campo {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        input[type="number"] {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        button {
+            padding: 8px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            height: 37px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        ul {
+            margin-top: 20px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        li div {
+            display: flex;
+            gap: 10px;
+        }
+        li span {
+            flex: 1;
+        }
+        li span.espacio-boton {
+            flex: none;
+            width: 76px;
+        }
+        .totales {
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        .totales h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Lista de Mercado</h1>
+
+    <div class="contenedor">
+
+        <div class="fila-inputs">
+            <div class="campo">
+                <label>Elemento</label>
+                <input type="text" id="elemento">
+            </div>
+            <div class="campo">
+                <label>Cantidad</label>
+                <input type="number" id="cantidad">
+            </div>
+            <div class="campo">
+                <label>Precio</label>
+                <input type="number" id="precio">
+            </div>
+            <button id="btnAgregar">Agregar</button>
+        </div>
+
+        <ul id="listaMercado"></ul>
+
+        <div class="totales">
+            <h2>Total: $<span id="total">0</span></h2>
+        </div>
+
+    </div>
+
+    <script>
+        var total = 0;
+
+        var elemento = document.getElementById("elemento");
+        var cantidad = document.getElementById("cantidad");
+        var precio = document.getElementById("precio");
+        var btnAgregar = document.getElementById("btnAgregar");
+        var listaMercado = document.getElementById("listaMercado");
+        var totalSpan = document.getElementById("total");
+
+        btnAgregar.addEventListener("click", function() {
+
+            if (elemento.value === "" || cantidad.value === "" || precio.value === "") {
+                alert("Por favor llena todas las casillas");
+                return;
+            }
+
+            var subtotal = cantidad.value * precio.value;
+
+            var nuevoItem = document.createElement("li");
+            var contenido = document.createElement("div");
+
+            var spanElemento = document.createElement("span");
+            spanElemento.textContent = elemento.value;
+
+            var spanCantidad = document.createElement("span");
+            spanCantidad.textContent = cantidad.value;
+
+            var spanPrecio = document.createElement("span");
+            spanPrecio.textContent = precio.value;
+
+            contenido.appendChild(spanElemento);
+            contenido.appendChild(spanCantidad);
+            contenido.appendChild(spanPrecio);
+
+            var spanEspacio = document.createElement("span");
+            spanEspacio.className = "espacio-boton";
+            contenido.appendChild(spanEspacio);
+
+            nuevoItem.appendChild(contenido);
+
+            listaMercado.appendChild(nuevoItem);
+
+            total = total + subtotal;
+            totalSpan.textContent = total;
+
+            elemento.value = "";
+            cantidad.value = "";
+            precio.value = "";
+            elemento.focus();
+        });
+    </script>
+
+</body>
+</html>
