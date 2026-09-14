@@ -1,17 +1,23 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title>UI Components</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="intro">
+    <p class="eyebrow">DOCUMENTACIÓN IONIC</p>
+    <h1>Componentes de interfaz</h1>
+    <p>Explora 20 componentes esenciales de Ionic. Selecciona uno para ver qué hace y probarlo en su propia página.</p>
+  </div>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <ion-list lines="full" class="component-list">
+    @for (component of components; track component.slug) {
+      <ion-item [routerLink]="['/tabs/component', component.slug]" detail="true" button>
+        <ion-label>
+          <h2>{{ component.name }}</h2>
+        </ion-label>
+      </ion-item>
+    }
+  </ion-list>
 </ion-content>

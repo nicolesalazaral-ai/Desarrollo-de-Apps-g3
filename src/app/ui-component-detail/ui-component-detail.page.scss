@@ -1,0 +1,28 @@
+.detail-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+.eyebrow {
+  color: var(--ion-color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(2rem, 8vw, 3rem); margin: 0; }
+.description { color: var(--ion-color-medium-shade); line-height: 1.55; margin: 10px 0 26px; }
+.demo-card { margin: 0 0 24px; }
+.demo-card ion-card-subtitle { color: var(--ion-color-primary); }
+.nested-card { margin: 0; }
+.content-example { background: var(--ion-color-light); border-radius: 10px; padding: 22px; }
+.centered, .badge-row { align-items: center; display: flex; gap: 12px; }
+.centered { flex-direction: column; padding: 24px; }
+.helper { color: var(--ion-color-medium-shade); font-size: 0.85rem; margin-bottom: 0; }
+.fab-demo { min-height: 80px; position: relative; }
+.fab-demo ion-fab-button { position: absolute; right: 4px; top: 8px; }
+.usage-note { border-left: 3px solid var(--ion-color-secondary); padding: 4px 0 4px 16px; }
+.usage-note p { color: var(--ion-color-medium-shade); line-height: 1.5; margin-bottom: 0; }

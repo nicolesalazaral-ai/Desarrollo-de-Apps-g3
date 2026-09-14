@@ -1,0 +1,43 @@
+:host {
+	--page-padding: 20px;
+}
+
+.intro {
+	padding: 28px var(--page-padding) 8px;
+}
+
+.eyebrow {
+	color: var(--ion-color-primary);
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	margin: 0 0 8px;
+}
+
+h1 {
+	font-size: clamp(1.8rem, 7vw, 2.4rem);
+	margin: 0 0 10px;
+}
+
+.intro > p:last-child {
+	color: var(--ion-color-medium-shade);
+	line-height: 1.5;
+	margin: 0;
+}
+
+.component-list {
+	background: transparent;
+	margin: 18px var(--page-padding) 0;
+}
+
+ion-item {
+	--padding-start: 0;
+	--inner-padding-end: 0;
+	--background: transparent;
+}
+
+ion-label h2 {
+	font-weight: 700;
+	margin-bottom: 5px;
+}
+
