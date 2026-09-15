@@ -1,17 +1,50 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <main class="contenedor">
+    <h1>Calculadora Ionic</h1>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <div class="formulario">
+      <label>
+        <span>Número 1</span>
+        <input type="number" [(ngModel)]="numero1" aria-label="Número 1">
+      </label>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+      <label>
+        <span>Número 2</span>
+        <input type="number" [(ngModel)]="numero2" aria-label="Número 2">
+      </label>
+
+      <label>
+        <span>Operación</span>
+        <select [(ngModel)]="operador" aria-label="Operación">
+          <option value="+">(+)</option>
+          <option value="-">(-)</option>
+          <option value="*">(×)</option>
+          <option value="/">(÷)</option>
+        </select>
+      </label>
+
+      <button type="button" (click)="calcular()">Calcular</button>
+
+      <label>
+        <span>Resultado</span>
+        <input type="text" [value]="resultado ?? ''" disabled aria-label="Resultado">
+      </label>
+    </div>
+
+    <section class="historial">
+      <div class="historial-titulo">
+        <h2>Historial</h2>
+      </div>
+
+      @if (historial.length > 0) {
+        <ul>
+          @for (op of historial; track $index) {
+            <li>
+              {{ op.numero1 }} {{ simboloOperador(op.operador) }} {{ op.numero2 }} = {{ op.resultado }}
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </main>
 </ion-content>
