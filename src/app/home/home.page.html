@@ -1,20 +1,26 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      RA Demo: Dedo con círculo
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div class="camera-ra-wrapper" [style.aspect-ratio]="cameraAspectRatio">
+    <video #videoEl autoplay playsinline muted class="camera-ra-video"></video>
+    <canvas #overlayEl class="camera-ra-canvas"></canvas>
   </div>
+
+  <div class="camera-meta">
+    <strong>Fuente:</strong> Cámara predeterminada del computador
+  </div>
+  <div class="camera-meta">
+    <strong>Seguimiento:</strong> {{ detectionStatus }}
+  </div>
+
+  <ion-button expand="block" (click)="startRA()" [disabled]="isStarting || cameraReady">
+    {{ isStarting ? startupStatus : cameraReady ? 'Cámara activa' : 'Iniciar RA' }}
+  </ion-button>
+  <div *ngIf="errorMsg" class="error-msg">{{ errorMsg }}</div>
 </ion-content>
