@@ -1,0 +1,36 @@
+export const API_ENDPOINTS = {
+  auth: {
+    register: '/auth/register',
+    login: '/auth/login',
+    me: '/auth/me',
+    logout: '/auth/logout',
+    forgotPassword: '/auth/forgot-password',
+  },
+  fares: { active: '/fares/active' },
+  client: {
+    estimate: '/client/estimate-fare',
+    rideRequests: '/client/ride-requests',
+    active: '/client/active',
+    cancel: (id: number) => `/client/cancel/${id}`,
+    trips: '/client/trips',
+    rating: (id: number) => `/client/trips/${id}/rating`,
+  },
+  driver: {
+    availability: '/driver/availability',
+    rideRequests: '/driver/ride-requests',
+    accept: (id: number) => `/driver/ride-requests/${id}/accept`,
+    arrive: (id: number) => `/driver/trips/${id}/arrive`,
+    start: (id: number) => `/driver/trips/${id}/start`,
+    complete: (id: number) => `/driver/trips/${id}/complete`,
+    location: '/driver/location',
+  },
+  admin: {
+    dashboard: '/admin/dashboard',
+    drivers: '/admin/drivers',
+    driverApproval: (id: number) => `/admin/drivers/${id}/approval`,
+    fares: '/admin/fares',
+    trips: '/admin/trips',
+    reports: '/admin/reports',
+    auditLogs: '/admin/audit-logs',
+  },
+} as const;

@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>uber<span class="brand-dot">.</span> conductor</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="logout()" aria-label="Cerrar sesión">Salir</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <main class="page-shell">
+    <p class="muted">Hola, {{ storage.user?.name }}</p>
+    <h1 class="page-title">Panel de conductor</h1>
+    @if (errorMessage) { <ion-card color="light"><ion-card-content role="alert">{{ errorMessage }}</ion-card-content></ion-card> }
+    @if (approvalBlocked) {
+      <ion-card color="warning"><ion-card-header><ion-card-title>Cuenta pendiente de aprobación</ion-card-title></ion-card-header>
+        <ion-card-content>Un administrador debe aprobar tu cuenta antes de que puedas conectarte o aceptar viajes.</ion-card-content>
+      </ion-card>
+    }
+
+    <ion-card>
+      <ion-card-header><ion-card-title>Disponibilidad</ion-card-title></ion-card-header>
+      <ion-card-content class="availability-row">
+        <ion-badge [color]="availability === 'available' ? 'success' : 'medium'">{{ availability === 'available' ? 'En línea' : 'Desconectado' }}</ion-badge>
+        <ion-button [disabled]="busy || approvalBlocked" (click)="setAvailability(availability === 'available' ? 'unavailable' : 'available')">
+          {{ availability === 'available' ? 'Desconectarme' : 'Conectarme' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    @if (currentTrip) {
+      <ion-card>
+        <ion-card-header><ion-card-title>Viaje #{{ currentTrip.id }}</ion-card-title><ion-card-subtitle>Estado: {{ currentTrip.status }}</ion-card-subtitle></ion-card-header>
+        <ion-card-content>
+          @if (currentTrip.status === 'assigned') {
+            <ion-button (click)="advance('arrive')" [disabled]="busy || approvalBlocked">Ya llegué al punto de recogida</ion-button>
+          } @else if (currentTrip.status === 'driver_arrived') {
+            <ion-button (click)="advance('start')" [disabled]="busy || approvalBlocked">Iniciar viaje</ion-button>
+          } @else if (currentTrip.status === 'in_progress') {
+            <p>Enviamos tu ubicación GPS durante el viaje cada 5 segundos.</p>
+            <p class="muted" role="status">{{ locationMessage }}</p>
+            <form [formGroup]="completeForm" (ngSubmit)="completeTrip()">
+              <div class="field"><label for="distance">Distancia recorrida (km)</label><ion-input id="distance" type="number" step="0.1" formControlName="actual_distance_km" fill="outline"></ion-input>@if (validationErrors['actual_distance_km']) { <small class="error-text">{{ validationErrors['actual_distance_km'][0] }}</small> }</div>
+              <div class="field"><label for="duration">Duración (minutos)</label><ion-input id="duration" type="number" formControlName="actual_duration_min" fill="outline"></ion-input>@if (validationErrors['actual_duration_min']) { <small class="error-text">{{ validationErrors['actual_duration_min'][0] }}</small> }</div>
+              @if (completeForm.invalid && completeForm.touched) { <small class="error-text">Ingresa una distancia y duración válidas.</small> }
+              <ion-button type="submit" [disabled]="busy || approvalBlocked">Finalizar viaje</ion-button>
+            </form>
+          }
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <h2 class="section-heading">Solicitudes disponibles</h2>
+      @if (loading) {
+        <ion-card><ion-card-content><ion-skeleton-text animated class="skeleton-wide"></ion-skeleton-text></ion-card-content></ion-card>
+      } @else if (requests.length) {
+        <ion-list>
+          @for (request of requests; track request.id) {
+            <ion-card>
+              <ion-card-header><ion-card-title>{{ request.origin_name }} → {{ request.destination_name }}</ion-card-title></ion-card-header>
+              <ion-card-content>
+                <p>Cliente: {{ request.client.name }} · {{ request.client.phone }}</p>
+                <p>{{ request.estimated_distance_km }} km · {{ request.estimated_fare | currency:'COP':'symbol':'1.0-0' }}</p>
+                <ion-button (click)="accept(request)" [disabled]="busy || approvalBlocked">Aceptar solicitud</ion-button>
+              </ion-card-content>
+            </ion-card>
+          }
+        </ion-list>
+      } @else {
+        <app-empty-state message="No hay solicitudes pendientes en este momento."></app-empty-state>
+      }
+    }
+  </main>
+</ion-content>

@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>uber<span class="brand-dot">.</span> administración</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="logout()" aria-label="Cerrar sesión">Salir</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <main class="page-shell">
+    <p class="muted">Hola, {{ storage.user?.name }}</p>
+    <h1 class="page-title">Centro de control</h1>
+    <nav class="admin-nav" aria-label="Secciones de administración">
+      <ion-button [fill]="tab === 'dashboard' ? 'solid' : 'clear'" (click)="selectTab('dashboard')">Resumen</ion-button>
+      <ion-button [fill]="tab === 'drivers' ? 'solid' : 'clear'" (click)="selectTab('drivers')">Conductores</ion-button>
+      <ion-button [fill]="tab === 'fares' ? 'solid' : 'clear'" (click)="selectTab('fares')">Tarifas</ion-button>
+      <ion-button [fill]="tab === 'trips' ? 'solid' : 'clear'" (click)="selectTab('trips')">Viajes</ion-button>
+      <ion-button [fill]="tab === 'reports' ? 'solid' : 'clear'" (click)="selectTab('reports')">Reportes y logs</ion-button>
+    </nav>
+    @if (errorMessage) { <ion-card color="light"><ion-card-content role="alert">{{ errorMessage }}</ion-card-content></ion-card> }
+    @if (loading) {
+      <ion-card><ion-card-content><ion-skeleton-text animated class="skeleton-wide"></ion-skeleton-text><ion-skeleton-text animated class="skeleton-short"></ion-skeleton-text></ion-card-content></ion-card>
+    }
+
+    @if (tab === 'dashboard' && stats) {
+      <section aria-label="Indicadores">
+        <div class="kpi-grid">
+          <ion-card><ion-card-content><span>Clientes</span><strong>{{ stats.total_clients }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Conductores</span><strong>{{ stats.total_drivers }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Por aprobar</span><strong>{{ stats.pending_drivers }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Activos</span><strong>{{ stats.active_trips }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Completados</span><strong>{{ stats.completed_trips }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Cancelados</span><strong>{{ stats.cancelled_trips }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Solicitudes pendientes</span><strong>{{ stats.pending_requests }}</strong></ion-card-content></ion-card>
+          <ion-card><ion-card-content><span>Ingresos</span><strong>{{ stats.total_revenue | currency:'COP':'symbol':'1.0-0' }}</strong></ion-card-content></ion-card>
+        </div>
+        <ion-card><ion-card-header><ion-card-title>Viajes recientes</ion-card-title></ion-card-header><ion-card-content><pre>{{ recentTrips | json }}</pre></ion-card-content></ion-card>
+        <ion-card><ion-card-header><ion-card-title>Incidencias recientes</ion-card-title></ion-card-header><ion-card-content><pre>{{ recentIncidents | json }}</pre></ion-card-content></ion-card>
+      </section>
+    }
+
+    @if (tab === 'drivers') {
+      <section>
+        <h2 class="section-heading">Conductores y aprobación</h2>
+        <div class="field"><label for="approval-notes">Notas para el conductor</label><ion-input id="approval-notes" [formControl]="approvalForm.controls.admin_notes" fill="outline" placeholder="Notas administrativas opcionales"></ion-input>@if (validationErrors['admin_notes']) { <small class="error-text">{{ validationErrors['admin_notes'][0] }}</small> }</div>
+        @if (!loading && !drivers.length) { <app-empty-state message="No hay conductores registrados."></app-empty-state> }
+        @for (driver of drivers; track driver.id) {
+          <ion-card>
+            <ion-card-header><ion-card-title>{{ driver.user.name }}</ion-card-title><ion-card-subtitle>{{ driver.user.email }} · {{ driver.approval_status }}</ion-card-subtitle></ion-card-header>
+            <ion-card-content>
+              <p>Licencia: {{ driver.license_number }} · Calificación: {{ driver.rating_average ?? 'Sin calificaciones' }}</p>
+              @for (vehicle of driver.vehicles; track vehicle.plate) { <p>{{ vehicle.brand }} {{ vehicle.model }} · {{ vehicle.plate }} · {{ vehicle.year }}</p> }
+              <div class="actions">
+                <ion-button color="success" (click)="updateDriver(driver, 'approved')">Aprobar</ion-button>
+                <ion-button color="warning" (click)="updateDriver(driver, 'suspended')">Suspender</ion-button>
+                <ion-button color="danger" fill="outline" (click)="updateDriver(driver, 'rejected')">Rechazar</ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+      </section>
+    }
+
+    @if (tab === 'fares') {
+      <section>
+        <ion-card><ion-card-header><ion-card-title>Configurar tarifa</ion-card-title></ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="fareForm" (ngSubmit)="createFare()">
+              <div class="fare-grid">
+                <div class="field"><label for="fare-name">Nombre</label><ion-input id="fare-name" formControlName="name" fill="outline"></ion-input>@if (fareForm.controls.name.touched && fareForm.controls.name.invalid) { <small class="error-text">Este campo es obligatorio.</small> }@if (validationErrors['name']) { <small class="error-text">{{ validationErrors['name'][0] }}</small> }</div>
+                <div class="field"><label for="base-fare">Tarifa base</label><ion-input id="base-fare" type="number" formControlName="base_fare" fill="outline"></ion-input>@if (fareForm.controls.base_fare.touched && fareForm.controls.base_fare.invalid) { <small class="error-text">Ingresa un valor no negativo.</small> }@if (validationErrors['base_fare']) { <small class="error-text">{{ validationErrors['base_fare'][0] }}</small> }</div>
+                <div class="field"><label for="per-km">Precio por km</label><ion-input id="per-km" type="number" formControlName="price_per_km" fill="outline"></ion-input>@if (fareForm.controls.price_per_km.touched && fareForm.controls.price_per_km.invalid) { <small class="error-text">Ingresa un valor no negativo.</small> }@if (validationErrors['price_per_km']) { <small class="error-text">{{ validationErrors['price_per_km'][0] }}</small> }</div>
+                <div class="field"><label for="per-minute">Precio por minuto</label><ion-input id="per-minute" type="number" formControlName="price_per_minute" fill="outline"></ion-input>@if (fareForm.controls.price_per_minute.touched && fareForm.controls.price_per_minute.invalid) { <small class="error-text">Ingresa un valor no negativo.</small> }@if (validationErrors['price_per_minute']) { <small class="error-text">{{ validationErrors['price_per_minute'][0] }}</small> }</div>
+                <div class="field"><label for="minimum-fare">Tarifa mínima</label><ion-input id="minimum-fare" type="number" formControlName="minimum_fare" fill="outline"></ion-input>@if (fareForm.controls.minimum_fare.touched && fareForm.controls.minimum_fare.invalid) { <small class="error-text">Ingresa un valor no negativo.</small> }@if (validationErrors['minimum_fare']) { <small class="error-text">{{ validationErrors['minimum_fare'][0] }}</small> }</div>
+                <div class="field"><label for="surge">Multiplicador dinámico</label><ion-input id="surge" type="number" step="0.1" formControlName="surge_multiplier" fill="outline"></ion-input>@if (fareForm.controls.surge_multiplier.touched && fareForm.controls.surge_multiplier.invalid) { <small class="error-text">Ingresa un valor no negativo.</small> }@if (validationErrors['surge_multiplier']) { <small class="error-text">{{ validationErrors['surge_multiplier'][0] }}</small> }</div>
+              </div>
+              <ion-item><ion-checkbox formControlName="active">Tarifa activa</ion-checkbox></ion-item>
+              @if (validationErrors['active']) { <small class="error-text">{{ validationErrors['active'][0] }}</small> }
+              <ion-button type="submit" [disabled]="loading">Guardar tarifa</ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+        <h2 class="section-heading">Tarifas configuradas</h2>
+        @if (faresResponse) { <ion-card><ion-card-header><ion-card-title>Tarifas consultadas</ion-card-title></ion-card-header><ion-card-content><p class="muted">El API no especifica el formato de respuesta de consulta; se presenta la respuesta original.</p><pre>{{ faresResponse | json }}</pre></ion-card-content></ion-card> }
+        @else if (!loading) { <app-empty-state message="No hay datos de tarifas disponibles."></app-empty-state> }
+      </section>
+    }
+
+    @if (tab === 'trips') {
+      <section>
+        <ion-card><ion-card-header><ion-card-title>Filtrar viajes</ion-card-title></ion-card-header><ion-card-content>
+          <form [formGroup]="filterForm" (ngSubmit)="loadTrips()">
+            <div class="fare-grid">
+              <div class="field"><label for="status-filter">Estado</label><ion-select id="status-filter" formControlName="status" interface="popover"><ion-select-option value="">Todos</ion-select-option><ion-select-option value="completed">Completado</ion-select-option><ion-select-option value="cancelled">Cancelado</ion-select-option><ion-select-option value="assigned">Asignado</ion-select-option><ion-select-option value="in_progress">En curso</ion-select-option></ion-select></div>
+              <div class="field"><label for="driver-filter">ID conductor</label><ion-input id="driver-filter" type="number" formControlName="driver_id" fill="outline"></ion-input></div>
+              <div class="field"><label for="client-filter">ID cliente</label><ion-input id="client-filter" type="number" formControlName="client_id" fill="outline"></ion-input></div>
+              <div class="field"><label for="date-filter">Fecha</label><ion-input id="date-filter" type="date" formControlName="date" fill="outline"></ion-input></div>
+            </div>
+            <ion-button type="submit">Aplicar filtros</ion-button>
+          </form>
+        </ion-card-content></ion-card>
+        @if (trips) { <ion-card><ion-card-content><p class="muted">El formato de respuesta de viajes no está documentado; se presenta la respuesta original.</p><pre>{{ trips | json }}</pre></ion-card-content></ion-card> }
+      </section>
+    }
+
+    @if (tab === 'reports') {
+      <section>
+        <h2 class="section-heading">Reporte consolidado</h2>
+        @if (report) { <ion-card><ion-card-content><pre>{{ report | json }}</pre></ion-card-content></ion-card> }
+        @else if (!loading) { <ion-card><ion-card-content class="muted">No hay datos de reporte disponibles.</ion-card-content></ion-card> }
+        <h2 class="section-heading">Logs de auditoría</h2>
+        @if (auditLogs) { <ion-card><ion-card-content><pre>{{ auditLogs | json }}</pre></ion-card-content></ion-card> }
+        @else if (!loading) { <app-empty-state message="No hay registros de auditoría disponibles."></app-empty-state> }
+      </section>
+    }
+  </main>
+</ion-content>

@@ -1,0 +1,11 @@
+.brand-dot { color: #83d957; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 3px; margin: 12px 0 18px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; }
+.kpi-grid ion-card { margin: 0; }
+.kpi-grid ion-card-content { display: flex; flex-direction: column; gap: 8px; color: #555; }
+.kpi-grid strong { font-size: 1.6rem; color: #111; }
+.fare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 14px; }
+.field label { display: block; font-size: .86rem; font-weight: 650; margin-bottom: 6px; }
+.field { margin: 8px 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+pre { overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; }

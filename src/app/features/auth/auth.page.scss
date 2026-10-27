@@ -1,0 +1,27 @@
+.auth-layout { min-height: 100%; display: grid; grid-template-columns: minmax(280px, 1fr) minmax(320px, 520px); background: white; }
+.brand-panel { background: #080808; color: white; padding: clamp(28px, 6vw, 76px); display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; }
+.brand { color: white; font-size: 2rem; font-weight: 800; text-decoration: none; letter-spacing: -2px; }
+.brand span { color: #a6f36d; }
+.eyebrow { color: #a6f36d; font-size: .75rem; font-weight: 700; letter-spacing: 1.4px; }
+.brand-panel h1 { font-size: clamp(3rem, 7vw, 5.5rem); letter-spacing: -4px; line-height: .98; margin: 18px 0; }
+.brand-copy, .brand-foot { color: #bdbdbd; }
+.form-panel { padding: clamp(28px, 6vw, 72px); max-width: 620px; width: 100%; }
+.mode-tabs { display: flex; border-bottom: 1px solid #e6e6e6; gap: 20px; margin-bottom: 36px; }
+.mode-tabs button, .text-button { border: 0; background: transparent; padding: 0 0 12px; color: #666; cursor: pointer; font: inherit; }
+.mode-tabs button.active { color: #111; border-bottom: 2px solid #111; font-weight: 700; }
+.form-panel h2 { font-size: 1.8rem; margin-bottom: 6px; }
+.form-panel form { margin-top: 26px; }
+.field { margin: 15px 0; }
+.field label { display: block; font-size: .88rem; font-weight: 650; margin-bottom: 7px; }
+.field ion-input, .field ion-select { --background: #fff; --border-radius: 10px; }
+.text-button { display: inline-block; padding: 5px 0; font-size: .88rem; text-decoration: underline; }
+.form-message { background: #fff2f0; border-radius: 8px; padding: 10px; color: #9c2a20; }
+.back-link { margin-top: 16px; }
+@media (max-width: 760px) {
+  .auth-layout { grid-template-columns: 1fr; }
+  .brand-panel { min-height: 210px; padding: 24px; }
+  .brand-panel > div { margin: 34px 0 14px; }
+  .brand-panel h1 { font-size: 3rem; letter-spacing: -2px; }
+  .brand-foot { display: none; }
+  .form-panel { padding: 28px 22px 40px; }
+}

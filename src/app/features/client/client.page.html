@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>uber<span class="brand-dot">.</span></ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" aria-label="Cerrar sesión">Salir</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <main class="page-shell">
+    <p class="muted">Hola, {{ storage.user?.name }}</p>
+    <h1 class="page-title">{{ tab === 'ride' ? '¿A dónde vamos?' : 'Tu actividad' }}</h1>
+    <div class="tabs" role="tablist" aria-label="Secciones de cliente">
+      <ion-button [fill]="tab === 'ride' ? 'solid' : 'clear'" (click)="tab = 'ride'">Pedir viaje</ion-button>
+      <ion-button [fill]="tab === 'activity' ? 'solid' : 'clear'" (click)="tab = 'activity'; refreshTrips()">Actividad</ion-button>
+    </div>
+    @if (errorMessage) { <ion-card color="light"><ion-card-content role="alert">{{ errorMessage }}</ion-card-content></ion-card> }
+
+    @if (tab === 'ride') {
+      <section aria-label="Solicitar viaje">
+        <ion-card>
+          <ion-card-header><ion-card-title>Tu destino</ion-card-title><ion-card-subtitle>Indica los lugares y sus coordenadas</ion-card-subtitle></ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="rideForm">
+              <div class="field">
+                <label for="origin">Punto de recogida</label>
+                <ion-input id="origin" formControlName="origin_name" placeholder="Dirección de origen" fill="outline"></ion-input>
+                @if (rideForm.controls.origin_name.touched && rideForm.controls.origin_name.invalid) { <small class="error-text">Escribe el punto de recogida.</small> }
+                @if (fieldErrors['origin_name']) { <small class="error-text">{{ fieldErrors['origin_name'][0] }}</small> }
+              </div>
+              <div class="coordinates">
+                <div class="field"><label for="origin-lat">Latitud de origen</label><ion-input id="origin-lat" type="number" formControlName="origin_latitude" fill="outline"></ion-input>@if (rideForm.controls.origin_latitude.touched && rideForm.controls.origin_latitude.invalid) { <small class="error-text">Ingresa una latitud entre -90 y 90.</small> }@if (fieldErrors['origin_latitude']) { <small class="error-text">{{ fieldErrors['origin_latitude'][0] }}</small> }</div>
+                <div class="field"><label for="origin-lon">Longitud de origen</label><ion-input id="origin-lon" type="number" formControlName="origin_longitude" fill="outline"></ion-input>@if (rideForm.controls.origin_longitude.touched && rideForm.controls.origin_longitude.invalid) { <small class="error-text">Ingresa una longitud entre -180 y 180.</small> }@if (fieldErrors['origin_longitude']) { <small class="error-text">{{ fieldErrors['origin_longitude'][0] }}</small> }</div>
+              </div>
+              <div class="field">
+                <label for="destination">Destino</label>
+                <ion-input id="destination" formControlName="destination_name" placeholder="¿A dónde vas?" fill="outline"></ion-input>
+                @if (rideForm.controls.destination_name.touched && rideForm.controls.destination_name.invalid) { <small class="error-text">Escribe el destino.</small> }
+                @if (fieldErrors['destination_name']) { <small class="error-text">{{ fieldErrors['destination_name'][0] }}</small> }
+              </div>
+              <div class="coordinates">
+                <div class="field"><label for="destination-lat">Latitud de destino</label><ion-input id="destination-lat" type="number" formControlName="destination_latitude" fill="outline"></ion-input>@if (rideForm.controls.destination_latitude.touched && rideForm.controls.destination_latitude.invalid) { <small class="error-text">Ingresa una latitud entre -90 y 90.</small> }@if (fieldErrors['destination_latitude']) { <small class="error-text">{{ fieldErrors['destination_latitude'][0] }}</small> }</div>
+                <div class="field"><label for="destination-lon">Longitud de destino</label><ion-input id="destination-lon" type="number" formControlName="destination_longitude" fill="outline"></ion-input>@if (rideForm.controls.destination_longitude.touched && rideForm.controls.destination_longitude.invalid) { <small class="error-text">Ingresa una longitud entre -180 y 180.</small> }@if (fieldErrors['destination_longitude']) { <small class="error-text">{{ fieldErrors['destination_longitude'][0] }}</small> }</div>
+              </div>
+              <ion-button expand="block" (click)="estimateFare()" [disabled]="loadingEstimate">
+                @if (loadingEstimate) { <ion-spinner name="crescent"></ion-spinner> } @else { Estimar tarifa }
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+
+        @if (estimate) {
+          <ion-card>
+            <ion-card-header><ion-card-title>Estimación</ion-card-title></ion-card-header>
+            <ion-card-content>
+              <div class="estimate"><strong>{{ estimate.estimated_fare | currency:estimate.currency:'symbol':'1.0-0' }}</strong><span>{{ estimate.distance_km }} km · {{ estimate.duration_min }} min</span></div>
+              <ion-button expand="block" (click)="requestRide()" [disabled]="loadingRequest">
+                @if (loadingRequest) { <ion-spinner name="crescent"></ion-spinner> } @else { Confirmar viaje }
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        }
+
+        <h2 class="section-heading">Viaje activo</h2>
+        @if (loadingActive) {
+          <ion-card><ion-card-content><ion-skeleton-text animated class="skeleton-wide"></ion-skeleton-text><ion-skeleton-text animated class="skeleton-medium"></ion-skeleton-text></ion-card-content></ion-card>
+        } @else if (activeRide?.has_active && activeData) {
+          <ion-card>
+            <ion-card-header><ion-card-title>Estado: {{ activeData.status }}</ion-card-title></ion-card-header>
+            <ion-card-content>
+              @if (activeTrip; as trip) {
+                @if (trip.driver) {
+                  <p>Conductor: {{ trip.driver.user.name }}</p>
+                  @if (trip.vehicle) { <p>Vehículo: {{ trip.vehicle.brand }} {{ trip.vehicle.model }} · {{ trip.vehicle.plate }}</p> }
+                  @if (trip.driver.latest_location) {
+                    <p>Ubicación: {{ trip.driver.latest_location.latitude }}, {{ trip.driver.latest_location.longitude }}</p>
+                  } @else { <p class="muted">Aún no hay ubicación disponible.</p> }
+                }
+              }
+              @if (activeData.status === 'requested' || activeData.status === 'assigned') {
+                <ion-button color="danger" fill="outline" (click)="cancelRide(activeData.id)">Cancelar viaje</ion-button>
+              }
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <app-empty-state message="No tienes solicitudes ni viajes activos."></app-empty-state>
+        }
+      </section>
+    } @else {
+      <ion-refresher slot="fixed" (ionRefresh)="refreshTrips(); $event.target.complete()">
+        <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>
+      </ion-refresher>
+      @if (loadingTrips) {
+        <ion-card><ion-card-content><ion-skeleton-text animated class="skeleton-wide"></ion-skeleton-text></ion-card-content></ion-card>
+      } @else if (trips.length) {
+        <ion-list>
+          @for (trip of trips; track trip.id) {
+            <ion-card>
+              <ion-card-header><ion-card-title>Viaje #{{ trip.id }}</ion-card-title><ion-card-subtitle>{{ trip.completed_at | date:'medium' }}</ion-card-subtitle></ion-card-header>
+              <ion-card-content>
+                <p>{{ trip.status }} · {{ (trip.final_fare ?? trip.estimated_fare) | currency:'COP':'symbol':'1.0-0' }}</p>
+                @if (trip.driver) { <p>Conductor: {{ trip.driver.user.name }}</p> }
+                @if (trip.vehicle) { <p>Vehículo: {{ trip.vehicle.plate }}</p> }
+                @if (trip.status === 'completed') {
+                  <form [formGroup]="ratingForm" (ngSubmit)="rateTrip(trip.id)">
+                    <div class="field"><label [for]="'score-' + trip.id">Calificación (1 a 5)</label><ion-select [id]="'score-' + trip.id" formControlName="score" interface="popover">
+                      @for (score of scores; track score) { <ion-select-option [value]="score">{{ score }} estrella{{ score === 1 ? '' : 's' }}</ion-select-option> }
+                    </ion-select>@if (ratingForm.controls.score.touched && ratingForm.controls.score.invalid) { <small class="error-text">La calificación debe estar entre 1 y 5.</small> }@if (fieldErrors['score']) { <small class="error-text">{{ fieldErrors['score'][0] }}</small> }</div>
+                    <div class="field"><label [for]="'comment-' + trip.id">Comentario</label><ion-textarea [id]="'comment-' + trip.id" formControlName="comment" rows="2" fill="outline"></ion-textarea>@if (ratingForm.controls.comment.touched && ratingForm.controls.comment.invalid) { <small class="error-text">Escribe un comentario.</small> }@if (fieldErrors['comment']) { <small class="error-text">{{ fieldErrors['comment'][0] }}</small> }</div>
+                    @if (fieldErrors['has_incident']) { <small class="error-text">{{ fieldErrors['has_incident'][0] }}</small> }
+                    <ion-item><ion-checkbox formControlName="has_incident">Reportar una incidencia</ion-checkbox></ion-item>
+                    <ion-button type="submit">Enviar calificación</ion-button>
+                  </form>
+                }
+              </ion-card-content>
+            </ion-card>
+          }
+        </ion-list>
+      } @else { <app-empty-state message="Aún no tienes viajes en tu historial."></app-empty-state> }
+    }
+  </main>
+</ion-content>

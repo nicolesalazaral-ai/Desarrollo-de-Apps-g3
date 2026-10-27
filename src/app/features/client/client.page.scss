@@ -1,0 +1,9 @@
+.brand-dot { color: #83d957; }
+.tabs { display: flex; gap: 8px; margin: 14px 0; }
+.field { margin: 12px 0; }
+.field label { display: block; font-size: .86rem; font-weight: 650; margin-bottom: 6px; }
+.coordinates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.estimate { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 18px; }
+.estimate strong { font-size: 1.8rem; }
+.estimate span { color: #666; }
+@media (max-width: 430px) { .coordinates { grid-template-columns: 1fr; gap: 0; } }

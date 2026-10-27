@@ -1,5 +1,15 @@
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { AppModule } from './app/app.module';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideIonicAngular } from '@ionic/angular/standalone';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+import { apiInterceptor } from './app/core/interceptors/api.interceptor';
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideIonicAngular(),
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(withInterceptors([apiInterceptor])),
+  ],
+}).catch((error: unknown) => console.error(error));
